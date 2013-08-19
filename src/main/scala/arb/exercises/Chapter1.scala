@@ -1,4 +1,4 @@
-package arb
+package arb.exercises
 
 object Chapter1 {
 

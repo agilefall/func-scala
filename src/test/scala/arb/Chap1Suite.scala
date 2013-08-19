@@ -1,7 +1,8 @@
 package arb
 
 import org.scalatest.FunSuite
-import arb.Chapter1._
+import arb.exercises.Chapter1
+import Chapter1._
 
 class Chap1Suite extends FunSuite {
   val gt = (x: Int, y: Int) => x > y
