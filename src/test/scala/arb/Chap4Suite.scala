@@ -3,6 +3,7 @@ package arb
 import org.scalatest.FunSuite
 
 import arb.dataStructures.{Option, Some, None}
+import arb.dataStructures.{Left, Right}
 import arb.exercises.Chapter4._
 
 
@@ -47,8 +48,35 @@ class Chap4Suite extends FunSuite {
 	test("ex 5/6 sequence and traverse") {
 		assert(sequence(List(Some(1), Some(2))) === Some(List(1,2)))
 		assert(sequence(List(Some(1), None)) === None)
-		assert(sequence(List(Some(()=>2), None, Some(()=> throw new RuntimeException("should short circuit")))) === None)
+		assert(sequence(List(Some(3), None, Some(3))) === None)
 	}
 
+	test("ex 7 either map") {
+		assert(Left(2).map((x:Int) => x + 2) == Left(2))
+		assert(Right(2).map((x:Int) => x + 2) == Right(4))
+	}
+
+	test("ex 7 either flatmap") {
+		assert(Right(Right(3)).flatMap(r => r.flatMap(x => Right(s"xx$x"))) == Right("xx3"))
+		assert(Left("left ftw").flatMap((r:Right[Int]) => r.flatMap(x => Right(s"xx$x"))) == Left("left ftw"))
+	}
+
+	test("ex 7 either or else") {
+		assert(Left("abc").orElse(Right(2)) === Right(2))
+		assert(Right("abc").orElse(Right(1234)) === Right("abc"))
+	}
+
+	test("ex 7 either map2") {
+		assert(Right(2).map2(Right(3))(_ + _) == Right(5))
+		assert(Right(2).map2(Left("xx"))((a:Int, b:Int) => 2) === Left("xx"))
+		assert(Left(2).map2(Left("xx"))((a:Int, b:String) => 2.2) === Left(2))
+		assert(Left(3).map2(Right("xx"))((a:Int, b:String) => List("x")) === Left(3))
+	}
+
+	test("ex 8 either sequence") {
+		assert(sequence(List(Right(2), Right(3), Right(4))) === Right(List(2,3,4)))
+		assert(sequence(List(Right(2), Left("xxy"), Right(4))) === Left("xxy"))
+		assert(sequence(List(Left("xxy"), Right(4))) === Left("xxy"))
+	}
 
 }

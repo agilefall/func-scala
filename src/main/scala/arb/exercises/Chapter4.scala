@@ -1,6 +1,6 @@
 package arb.exercises
 
-import arb.dataStructures.{Option, Some, None}
+import arb.dataStructures.{Option, Some, None, Right, Left, Either}
 
 object Chapter4 {
 
@@ -44,5 +44,16 @@ object Chapter4 {
 		traverse(a)(x => x)
 	}
 
+
+	def sequence[E, B](a: List[Either[E, B]]): Either[E, List[B]] = {
+		def loop(a: List[Either[E, B]], accum: List[B]): Either[E, List[B]] = a match {
+			case Nil => Right(accum)
+			case hd :: tl => hd match {
+				case Left(x) => Left(x)
+				case Right(x) => loop(tl, accum ::: List(x))
+			}
+		}
+		loop(a, Nil)
+	}
 
 }
