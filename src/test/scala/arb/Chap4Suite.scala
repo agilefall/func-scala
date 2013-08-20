@@ -3,6 +3,8 @@ package arb
 import org.scalatest.FunSuite
 
 import arb.dataStructures._
+import arb.exercises.Chapter4._
+
 
 class Chap4Suite extends FunSuite {
 
@@ -25,5 +27,10 @@ class Chap4Suite extends FunSuite {
 		assert(None.orElse(None) === None)
 
 	}
+
+	test("Ex 2 variance") {
+		assert(math.abs(variance(Seq(1,3,3,4,5,5,6,22,33)).getOrElse(throw new RuntimeException("xx")) - 105.20) < .01)
+	}
+
 
 }
