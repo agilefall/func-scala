@@ -20,11 +20,8 @@ class Chap3Suite extends FunSuite {
 		assert(x == 3)
 	}
 
-	test("ex 2 tail remove element") {
+	test("ex 2 tail") {
 		assert(tail(List(1, 2, 3)) === List(2, 3))
-	}
-
-	test("ex 2 tail on empty list") {
 		assert(tail(Nil) === Nil)
 	}
 

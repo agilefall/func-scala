@@ -133,7 +133,6 @@ object Chapter3 {
 		case _ => throw new RuntimeException("Lists must be same length")
 	}
 
-
 	def addLists(a:List[Int], b:List[Int]): List[Int] = merge(a,b)(_ + _)
 
 	def hasSubsequence[A](l: List[A], sub: List[A]): Boolean = {
@@ -141,7 +140,7 @@ object Chapter3 {
 			case Nil => s == Nil
 			case Cons(hd, tl) => s match {
 				case Nil => true
-				case Cons(hdb, tlb) => if (hdb != hd) false else isSub(tl, tlb)
+				case Cons(hdb, tlb) => (hdb == hd) && isSub(tl, tlb)
 			}
 		}
 		l match {
