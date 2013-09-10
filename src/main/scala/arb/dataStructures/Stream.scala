@@ -62,6 +62,24 @@ trait Stream[+A] {
 		(e, a) => f(e).append(a)
 	}
 
+	def zip[B](other: Stream[B]): Stream[(A, B)] = Stream.unfold((this, other)) {
+		case (s1, s2) =>
+			s1.uncons.flatMap {
+				case (x, xs) => s2.uncons.map {
+					case (y, ys) => ((x, y), (xs, ys))
+				}
+			}
+	}
+	def zipAll[B, C >: A](other:Stream[B], defaultA: C, defaultB: B) = Stream.unfold((this, other)){
+		case (s1, s2) =>
+			(s1.uncons, s2.uncons) match {
+				case (None, None) => None
+				case (sa, sb) =>
+					for((x, xs) <- sa.orElse(Some((defaultA, Stream.empty[A])));
+					    (y,ys) <- sb.orElse(Some((defaultB, Stream.empty[B])))) yield {((x,y),(xs, ys))}
+			}
+	}
+
 }
 
 object Stream {

@@ -133,5 +133,54 @@ class Chap5Suite extends FunSuite {
 		assert(ones.take(5).toList.sum === 5)
 	}
 
+	test("ex 12 map using unfold") {
+		assert(Stream.empty.map((x:String) =>  s"$x-x").toList() === Nil)
+		assert(map(Stream("foo","bar", "fizbuzz"))(x => s"$x-x").toList() === List("foo-x", "bar-x", "fizbuzz-x"))
+		assert(map(Stream("foo"))(x => x.size).toList() === List(3))
+	}
+
+
+	test("ex 12 stream take using unfold") {
+		assert(take(Stream("foo", "bar", "fizbuzz"),0).toList() === Nil)
+		assert(take(Stream("foo", "bar", "fizbuzz"),1).toList() === List("foo"))
+		assert(take(Stream("foo", "bar", "fizbuzz", "xxyy"),2).toList() === List("foo", "bar"))
+		assert(take(Stream("foo", "bar", "fizbuzz"),3).toList() === List("foo", "bar", "fizbuzz"))
+		assert(take(Stream("foo", "bar", "fizbuzz"),4).toList() === List("foo", "bar", "fizbuzz"))
+		assert(take(Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)),1).toList() === List(1))
+		// should get no error until the new stream is used
+		take(Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)),2)
+		intercept[DummyException] {
+			take(Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)),2).toList()
+		}
+	}
+
+	test("ex 12 stream takeWhile using unfold") {
+		assert(takeWhile(Stream("foo", "bar", "fizbuzz"))(_.endsWith("x")).toList() === Nil)
+		assert(takeWhile(Stream("foo", "bar", "fizbuzz"))(_.startsWith("f")).toList() === List("foo"))
+		assert(takeWhile(Stream("foo", "bar", "fizbuzz"))(_.size == 3).toList() === List("foo", "bar"))
+		assert(takeWhile(Stream("foo", "bar", "fizbuzz"))(_ => true).toList() === List("foo", "bar", "fizbuzz"))
+		assert(takeWhile(Stream.cons(1, Stream.cons(2, Stream.cons({throw new DummyException}, Stream.empty))))(_ < 2).toList() === List(1))
+
+		// should get no error until the new stream is used
+		takeWhile(Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)))(_ < 3)
+
+		intercept[DummyException] {
+			takeWhile(Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)))(_ < 3).toList()
+		}
+	}
+
+	test("ex 12 zip") {
+		assert(Stream(1,2,3).zip(Stream("a", "b", "c")).toList() === List((1,"a"), (2, "b"), (3, "c")))
+		assert(Stream(1,2,3).zip(Stream("a", "b")).toList() === List((1,"a"), (2, "b")))
+		assert(Stream.empty[Int].zip(Stream("a", "b")).toList() === Nil)
+		assert(Stream.cons(1, Stream.cons(2, Stream.cons({throw new DummyException}, Stream.empty))).
+		  zip(Stream("a")).toList() == List((1,"a")))
+	}
+
+	test("ex 12 zip all") {
+		assert(Stream(1,2,3).zipAll(Stream("a", "b", "c"), -1, "na").toList() === List((1,"a"), (2, "b"), (3, "c")))
+		assert(Stream(1,2,3).zipAll(Stream("a", "b"), -1, "na").toList() === List((1,"a"), (2, "b"), (3, "na")))
+		assert(Stream(1,2).zipAll(Stream("a", "b", "c"), -1, "na").toList() === List((1,"a"), (2, "b"), (-1, "c")))
+	}
 
 }

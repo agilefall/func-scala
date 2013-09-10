@@ -21,4 +21,18 @@ object Chapter5 {
 	def constantV1[A](a: A): Stream[A] = Stream.cons(a, constantV1(a))
 
 	val ones = Stream.unfold(1)(s => Some(1,1))
+
+	def map[A,B](s: Stream[A])(f: (A) => B): Stream[B] = Stream.unfold(s){(s) => s.uncons.map(p => (f(p._1), p._2))}
+
+	def take[A](s: Stream[A], n: Int): Stream[A] = Stream.unfold((s, n)) {
+		case (s2, i) =>
+			if (i < 1) None
+			else s2.uncons.map {
+				case (x,xs) => (x, (xs, i - 1))
+			}
+	}
+
+	def takeWhile[A](s: Stream[A])(p:(A) => Boolean): Stream[A] = Stream.unfold(s){_.uncons.flatMap {
+		case(x, xs) => if(!p(x)) None else Some(x, xs)
+	}}
 }
