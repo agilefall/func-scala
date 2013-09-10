@@ -28,17 +28,17 @@ class Chap5Suite extends FunSuite {
 	}
 
 	test("ex 3 stream take while") {
-		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_.endsWith("x")).toList() === Nil)
-		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_.startsWith("f")).toList() === List("foo"))
-		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_.size == 3).toList() === List("foo", "bar"))
-		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_ => true).toList() === List("foo", "bar", "fizbuzz"))
-		assert(Stream.cons(1, Stream.cons(2, Stream.cons({throw new DummyException}, Stream.empty))).takeWhile(_ < 2).toList() === List(1))
+		assert(Stream("foo", "bar", "fizbuzz").takeWhileV1(_.endsWith("x")).toList() === Nil)
+		assert(Stream("foo", "bar", "fizbuzz").takeWhileV1(_.startsWith("f")).toList() === List("foo"))
+		assert(Stream("foo", "bar", "fizbuzz").takeWhileV1(_.size == 3).toList() === List("foo", "bar"))
+		assert(Stream("foo", "bar", "fizbuzz").takeWhileV1(_ => true).toList() === List("foo", "bar", "fizbuzz"))
+		assert(Stream.cons(1, Stream.cons(2, Stream.cons({throw new DummyException}, Stream.empty))).takeWhileV1(_ < 2).toList() === List(1))
 
 		// should get no error until the new stream is used
-		Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)).takeWhile(_ < 3)
+		Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)).takeWhileV1(_ < 3)
 
 		intercept[DummyException] {
-			Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)).takeWhile(_ < 3).toList()
+			Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)).takeWhileV1(_ < 3).toList()
 		}
 	}
 
@@ -53,5 +53,52 @@ class Chap5Suite extends FunSuite {
 		}
 	}
 
+	test("ex 5 stream take while using foldr") {
+		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_.endsWith("x")).toList() === Nil)
+		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_.startsWith("f")).toList() === List("foo"))
+		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_.size == 3).toList() === List("foo", "bar"))
+		assert(Stream("foo", "bar", "fizbuzz").takeWhile(_ => true).toList() === List("foo", "bar", "fizbuzz"))
+		assert(Stream.cons(1, Stream.cons(2, Stream.cons({throw new DummyException}, Stream.empty))).takeWhileV1(_ < 2).toList() === List(1))
+
+		// should get no error until the new stream is used
+		Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)).takeWhile(_ < 3)
+
+		intercept[DummyException] {
+			Stream.cons(1, Stream.cons({throw new DummyException}, Stream.empty)).takeWhile(_ < 3).toList()
+		}
+	}
+
+	test("ex 6 map using foldr") {
+		assert(Stream.empty.map((x:String) =>  s"$x-x").toList() === Nil)
+		assert(Stream("foo", "bar", "fizbuzz").map(x => s"$x-x").toList() === List("foo-x", "bar-x", "fizbuzz-x"))
+		assert(Stream("foo").map(x => x.size).toList() === List(3))
+	}
+
+	test("ex 6 filter using foldr") {
+		assert(Stream.empty.filter((x: String) => true).toList() === Nil)
+		assert(Stream("foo", "bar", "fizbuzz").filter(x => x.startsWith("f")).toList() === List("foo", "fizbuzz"))
+		assert(Stream("foo").filter(x => x.size == 4).toList() === Nil)
+	}
+
+	test("ex 6 append using foldr") {
+		assert(Stream.empty.append(Stream.empty).toList() === Nil)
+		assert(Stream("foo", "bar").append(Stream.empty).toList() === List("foo", "bar"))
+		assert(Stream.empty.append(Stream("a", "b")).toList() === List("a", "b"))
+		assert(Stream("a").append(Stream("x", "y")).toList() === List("a", "x", "y"))
+		assert(Stream("a", "b", "c").append(Stream("x", "y", "z")).toList() === List("a", "b", "c", "x", "y", "z"))
+	}
+
+	test("ex 6 flatmap using foldr") {
+		assert(Stream.empty.flatMap((x:String) => Stream(x, x)).toList() === Nil)
+		assert(Stream("x").flatMap(x => Stream(x)).toList() === List("x"))
+		assert(Stream("x").flatMap(x => Stream(x,x)).toList() === List("x", "x"))
+		assert(Stream("x", "y").flatMap(x => Stream(x, x)).toList() === List("x", "x", "y", "y"))
+		assert(Stream("x", "y", "z").flatMap(x => if(x != "y") Stream(x, x) else Stream.empty).toList() === List("x", "x", "z", "z"))
+	}
+
+	test("ex 7 constant NOT using foldr") {
+		assert(Stream.constant("a").take(4).toList() === List("a", "a", "a", "a"))
+		assert(Stream.constant(1).takeWhile( _ != 1).toList() === Nil)
+	}
 
 }
