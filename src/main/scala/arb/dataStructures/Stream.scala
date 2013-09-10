@@ -8,6 +8,7 @@ trait Stream[+A] {
 
 	def uncons: Option[(A, Stream[A])]
 	def isEmpty: Boolean = uncons.isEmpty
+
 	def toList(): List[A] = {
 		@tailrec
 		def loop(st: Stream[A], accum: List[A]):List[A] = st.uncons match {
@@ -70,15 +71,17 @@ trait Stream[+A] {
 				}
 			}
 	}
-	def zipAll[B, C >: A](other:Stream[B], defaultA: C, defaultB: B) = Stream.unfold((this, other)){
+	def zipAll[B, C >: A](other:Stream[B]):Stream[(Option[A], Option[B])] = Stream.unfold((this, other)){
 		case (s1, s2) =>
 			(s1.uncons, s2.uncons) match {
 				case (None, None) => None
-				case (sa, sb) =>
-					for((x, xs) <- sa.orElse(Some((defaultA, Stream.empty[A])));
-					    (y,ys) <- sb.orElse(Some((defaultB, Stream.empty[B])))) yield {((x,y),(xs, ys))}
+				case (Some((x,xs)), Some((y,ys))) => Some((Some(x),Some(y)),(xs, ys))
+				case (Some((x,xs)), None) => Some((Some(x), None), (xs, Stream.empty))
+				case (None, Some((y,ys))) => Some((None, Some(y)), (Stream.empty, ys))
 			}
 	}
+
+	def tails: Stream[Stream[A]] = if(isEmpty) Stream(Stream.empty) else (Stream.cons(this, uncons.map(_._2.tails).getOrElse(Stream.empty)))
 
 }
 
@@ -105,4 +108,10 @@ object Stream {
 	def constant[A](a: A): Stream[A] = unfold(a){_ => Some(a, a)}
 
 	def from(n: Int): Stream[Int] = unfold(n){(s) => Option((s,s + 1))}
+
+	def startsWith[A](s: Stream[A], s2: Stream[A]): Boolean = {
+		s2.zipAll(s).foldRight(true){(a, b) =>
+			(a._1 == None) || (a._1 == a._2 && b)
+		}
+	}
 }

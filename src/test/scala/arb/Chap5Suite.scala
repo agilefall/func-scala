@@ -178,9 +178,23 @@ class Chap5Suite extends FunSuite {
 	}
 
 	test("ex 12 zip all") {
-		assert(Stream(1,2,3).zipAll(Stream("a", "b", "c"), -1, "na").toList() === List((1,"a"), (2, "b"), (3, "c")))
-		assert(Stream(1,2,3).zipAll(Stream("a", "b"), -1, "na").toList() === List((1,"a"), (2, "b"), (3, "na")))
-		assert(Stream(1,2).zipAll(Stream("a", "b", "c"), -1, "na").toList() === List((1,"a"), (2, "b"), (-1, "c")))
+		assert(Stream(1,2,3).zipAll(Stream("a", "b", "c")).toList() === List((Some(1),Some("a")), (Some(2), Some("b")), (Some(3), Some("c"))))
+		assert(Stream(1,2,3).zipAll(Stream("a", "b")).toList() === List((Some(1),Some("a")), (Some(2), Some("b")), (Some(3), None)))
+		assert(Stream(1,2).zipAll(Stream("a", "b", "c")).toList() === List((Some(1),Some("a")), (Some(2), Some("b")), (None, Some("c"))))
+	}
+
+	test("ex 13 starts with") {
+		assert(Stream.startsWith(Stream(1,2,3),Stream(1,2)))
+		assert(Stream.startsWith(Stream(1,2,3),Stream(1,2,3)))
+		assert(Stream.startsWith(Stream(1,2,3),Stream.empty))
+		assert(Stream.startsWith(Stream.empty,Stream.empty))
+		assert(Stream.startsWith(Stream.empty,Stream(1)) === false)
+		assert(Stream.startsWith(Stream(1,2,3),Stream(1,3)) === false)
+		assert(Stream.startsWith(Stream(1,2,3),Stream(0,1)) === false)
+	}
+
+	test("ex 14 tails") {
+		assert(Stream(1,2,3).tails.toList().map(_.toList) === List(List(1,2,3), List(2,3), List(3), Nil))
 	}
 
 }
