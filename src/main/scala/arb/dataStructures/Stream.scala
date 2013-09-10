@@ -65,8 +65,8 @@ trait Stream[+A] {
 }
 
 object Stream {
-	import scala.None
-	import scala.Some
+	import scala.{Option, None, Some}
+
 	def empty[A]: Stream[A] =
 		new Stream[A] { def uncons = None }
 
@@ -78,5 +78,13 @@ object Stream {
 		if (as.isEmpty) empty
 		else cons(as.head, apply(as.tail: _*))
 
-	def constant[A](a: A): Stream[A] = Stream.cons(a, constant(a))
+
+	def unfold[A, S](z: S)(f: S => Option[(A, S)]): Stream[A] = f(z) match {
+		case None => Stream.empty
+		case Some((a, x)) => Stream.cons(a, unfold(x)(f))
+	}
+
+	def constant[A](a: A): Stream[A] = unfold(a){_ => Some(a, a)}
+
+	def from(n: Int): Stream[Int] = unfold(n){(s) => Option((s,s + 1))}
 }

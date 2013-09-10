@@ -1,6 +1,7 @@
 package arb
 
 import org.scalatest.FunSuite
+import arb.exercises.Chapter5._
 
 
 class Chap5Suite extends FunSuite {
@@ -97,8 +98,40 @@ class Chap5Suite extends FunSuite {
 	}
 
 	test("ex 7 constant NOT using foldr") {
+		assert(constantV1("a").take(4).toList() === List("a", "a", "a", "a"))
+		assert(constantV1(1).takeWhile( _ != 1).toList() === Nil)
+	}
+
+	test("ex 8 from v1") {
+		assert(fromV1(2).take(3).toList().sum === 9)
+		assert(fromV1(2).take(100).toList().size === 100)
+	}
+
+	test("ex 9 fibs") {
+		assert(fibsV1.take(7).toList() === List(0, 1, 1, 2, 3, 5, 8))
+	}
+
+	test("ex 10 unfold") {
+		assert(Stream.unfold[Int, Int](0)(x => Some(x, x + 1)).take(3).toList() === List(0,1,2))
+	}
+
+	test("ex 11 fibs with unfold") {
+		assert(fibs.take(7).toList() === List(0, 1, 1, 2, 3, 5, 8))
+	}
+
+	test("ex 11 const with unfold") {
 		assert(Stream.constant("a").take(4).toList() === List("a", "a", "a", "a"))
 		assert(Stream.constant(1).takeWhile( _ != 1).toList() === Nil)
 	}
+
+	test("ex 11 from") {
+		assert(Stream.from(2).take(3).toList().sum === 9)
+		assert(Stream.from(2).take(100).toList().size === 100)
+	}
+
+	test("ex 11 ones") {
+		assert(ones.take(5).toList.sum === 5)
+	}
+
 
 }
