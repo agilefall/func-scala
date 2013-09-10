@@ -81,8 +81,7 @@ trait Stream[+A] {
 			}
 	}
 
-	def tails: Stream[Stream[A]] = if(isEmpty) Stream(Stream.empty) else (Stream.cons(this, uncons.map(_._2.tails).getOrElse(Stream.empty)))
-
+	def tails: Stream[Stream[A]] = Stream.unfold(this){s => s.uncons.map { case (x,xs) => (s, xs)}}.append(Stream(Stream.empty))
 }
 
 object Stream {
