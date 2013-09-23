@@ -100,4 +100,51 @@ class Chap6Suite extends FunSuite {
 		assert(a === -2)
 		near(1.53e-8, b)
 	}
+
+
+	test("ex 8 ints v2") {
+		val mock = MockRNG(3,4,8,7)
+		val (rs, ra) = ints(3)(mock)
+		assert(rs === List(8, 4, 3))
+	}
+
+
+	test("ex 9: positive int V2") {
+		val mock = MockRNG(-2, 33, Int.MinValue, -44)
+		val (i, ra) = positiveInt(mock)
+		assert(i === 2)
+		val (j, rb) = positiveIntV2(ra)
+		assert(j === 33)
+		val (k, rc) = positiveIntV2(rb)
+		assert(k === 44)
+	}
+
+	test("ex 10 map v2 ") {
+		def positiveMax2(n: Int): Rand[Int] = {
+			map(double) {
+				d => println(d); math.round((d * n).toFloat);
+			}
+		}
+
+		val mock = MockRNG(-Int.MaxValue, Int.MaxValue / 2 - 1)
+		val (a, ma) = positiveMax(55)(mock)
+		assert(a === 55)
+		val (b, mb) = positiveMax(55)(ma)
+		assert(b === 28)
+	}
+
+	test("ex 10 map2 v2") {
+
+		def intDoubleV3(rng: RNG): ((Int, Double), RNG) = {
+			map2V2(int, double) {
+				(i, d) => (i, d)
+			}(rng)
+		}
+
+		val mock = MockRNG(-2, 33)
+		val ((a, b), _) = intDoubleV3(mock)
+		assert(a === -2)
+		near(1.53e-8, b)
+	}
+
 }
