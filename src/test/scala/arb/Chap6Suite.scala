@@ -147,4 +147,10 @@ class Chap6Suite extends FunSuite {
 		near(1.53e-8, b)
 	}
 
+
+	test("ex 11 candy machine") {
+		assert((0,1) === simulateMachine(List(Turn)).run(Machine(false, 1, 0))._1)
+	}
+
+
 }

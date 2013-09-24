@@ -9,6 +9,10 @@ object State {
 
 	def unit[S, A](a: A): State[S, A] = State((s: S) => (a, s))
 
+	def get[S]: State[S, S] = State(s => (s, s))
+
+	def set[S](s: S): State[S, Unit] = State(_ => ((), s))
+
 	def sequence[S, A](fs: List[State[S, A]]): State[S, List[A]] = {
 		@tailrec
 		def loop(l: List[State[S, A]], s: S, accum: List[A]): (List[A], S) = l match {

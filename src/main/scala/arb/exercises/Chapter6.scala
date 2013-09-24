@@ -1,6 +1,7 @@
 package arb.exercises
 
 import scala.annotation.tailrec
+import arb.dataStructures.State
 
 object Chapter6 {
 
@@ -167,5 +168,31 @@ object Chapter6 {
 		}
 	}
 
+
+	sealed trait Input
+	case object Coin extends Input
+	case object Turn extends Input
+
+	case class Machine(locked: Boolean, candies: Int, coins: Int)
+
+	def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
+
+		def processInput(input: Input, m: Machine, values: (Int, Int)):((Int, Int), Machine ) = input match {
+			case Coin if m.candies > 0 && m.locked => {
+				(values, m.copy(locked = false))
+			}
+			case Turn if m.candies > 0 && !m.locked => {
+				((values._1 - 1, values._2 + 1), Machine(false, m.candies - 1, m.coins + 1))
+			}
+			case _ => (values, m)
+		}
+
+
+		State {
+			m: Machine => {
+
+			}
+		}
+	}
 
 }
