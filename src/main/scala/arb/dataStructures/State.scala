@@ -14,15 +14,12 @@ object State {
 	def set[S](s: S): State[S, Unit] = State(_ => ((), s))
 
 	def sequence[S, A](fs: List[State[S, A]]): State[S, List[A]] = {
-		@tailrec
-		def loop(l: List[State[S, A]], s: S, accum: List[A]): (List[A], S) = l match {
-			case Nil => (accum, s)
-			case x :: xs => {
-				val (a, s2) = x.run(s)
-				loop(xs, s2, a::accum)
-			}
+		unit[S, List[A]](Nil).flatMap{ a =>
+			State((s:S) => fs.foldRight((a, s)) {(f, accum) =>
+				val (a2, s2) = f.run(s)
+				(a2::accum._1, s2)
+			})
 		}
-		State(s => loop(fs, s, Nil))
 	}
 }
 

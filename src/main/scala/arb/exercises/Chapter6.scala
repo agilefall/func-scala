@@ -87,7 +87,7 @@ object Chapter6 {
 	//ex 5
 	def positiveMax(n: Int): Rand[Int] = {
 		map(double) {
-			d => println(d); math.round((d * n).toFloat);
+			d => println(d); math.round((d * n).toFloat)
 		}
 	}
 
@@ -113,10 +113,7 @@ object Chapter6 {
 
 	// ex 8 implement ints using seq
 	def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = {
-		//Rand[A]: RNG => (A, RNG)
-
 		// sequence converts a List[RNG => (A, RNG]) to a RNG => (List[A], RNG)
-
 		@tailrec
 		def loop(l: List[Rand[A]], accum: (List[A], RNG)): (List[A], RNG) = l match {
 			case Nil => accum
@@ -168,7 +165,6 @@ object Chapter6 {
 		}
 	}
 
-
 	sealed trait Input
 	case object Coin extends Input
 	case object Turn extends Input
@@ -177,7 +173,7 @@ object Chapter6 {
 
 	def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
 
-		def processInput(input: Input, m: Machine, values: (Int, Int)):((Int, Int), Machine ) = input match {
+		def processInput(input: Input, m: Machine, values: (Int, Int)):((Int, Int), Machine) = input match {
 			case Coin if m.candies > 0 && m.locked => {
 				(values, m.copy(locked = false))
 			}
@@ -187,12 +183,35 @@ object Chapter6 {
 			case _ => (values, m)
 		}
 
-
-		State {
+		State[Machine, (Int, Int)] {
 			m: Machine => {
-
-			}
+				inputs.foldLeft(State.unit[Machine, (Int, Int)]((m.candies, m.coins))) {
+					(state, input) =>
+						state.flatMap {
+							values =>
+								State((m2: Machine) => processInput(input, m2, values))
+						}
+				}
+			}.run(m)
 		}
+	}
+
+	def simulateMachineV2(inputs: List[Input]): State[Machine, (Int, Int)] = {
+
+		def processInput(input: Input, m: Machine, values: (Int, Int)):((Int, Int), Machine) = input match {
+			case Coin if m.candies > 0 && m.locked => {
+				(values, m.copy(locked = false))
+			}
+			case Turn if m.candies > 0 && !m.locked => {
+				((values._1 - 1, values._2 + 1), Machine(false, m.candies - 1, m.coins + 1))
+			}
+			case _ => (values, m)
+		}
+		inputs.map { i =>
+			State(m => processInput(i, m, _))
+		}
+
+		null
 	}
 
 }
