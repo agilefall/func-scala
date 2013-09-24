@@ -14,16 +14,31 @@ object State {
 	def set[S](s: S): State[S, Unit] = State(_ => ((), s))
 
 	def sequence[S, A](fs: List[State[S, A]]): State[S, List[A]] = {
-		@tailrec
-		def loop(l: List[State[S, A]], s: S, accum: List[A]): (List[A], S) = l match {
-			case Nil => (accum, s)
-			case x :: xs => {
-				val (a, s2) = x.run(s)
-				loop(xs, s2, a::accum)
-			}
+		unit[S, List[A]](Nil).flatMap {
+			a =>
+				State((s: S) => fs.foldLeft((a, s)) {
+					(accum: (List[A], S), f: State[S, A]) =>
+						val (a2, st2) = f.run(accum._2)
+						(accum._1:::List(a2), st2)
+				})
 		}
-		State(s => loop(fs, s, Nil))
 	}
+
+	def seq2[S, A](fs: List[State[S, A]]): State[S, List[A]] = {
+		State(s0 => fs.foldLeft((List[A](), s0)) {
+			(accum, f) =>
+				val (a, st2) = f.run(accum._2)
+				(accum._1 ::: List(a), st2)
+		})
+	}
+
+	def seq3[S,A](fs: List[State[S, A]]): State[S, List[A]] = {
+		fs.foldRight(unit[S, List[A]](List[A]())) { (f, accum) => {
+			f.map2(accum)(_ :: _)
+		}}
+	}
+
+
 }
 
 case class State[S, +A](run: S => (A, S)) {
@@ -51,6 +66,9 @@ case class State[S, +A](run: S => (A, S)) {
 				})
 		}
 	}
+
+
+
 
 
 }

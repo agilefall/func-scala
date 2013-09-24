@@ -122,7 +122,7 @@ class Chap6Suite extends FunSuite {
 	test("ex 10 map v2 ") {
 		def positiveMax2(n: Int): Rand[Int] = {
 			map(double) {
-				d => println(d); math.round((d * n).toFloat);
+				d => math.round((d * n).toFloat)
 			}
 		}
 
@@ -150,7 +150,12 @@ class Chap6Suite extends FunSuite {
 
 	test("ex 11 candy machine") {
 		assert((0,1) === simulateMachine(List(Turn)).run(Machine(false, 1, 0))._1)
+
+		assert((0,1) === simulateMachine(List(Coin, Turn)).run(Machine(true, 1, 0))._1)
 	}
+
+
+
 
 
 }
