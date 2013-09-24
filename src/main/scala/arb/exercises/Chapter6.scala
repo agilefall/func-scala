@@ -120,7 +120,7 @@ object Chapter6 {
 		def loop(l: List[Rand[A]], accum: (List[A], RNG)): (List[A], RNG) = l match {
 			case Nil => accum
 			case x :: xs => {
-				val (a, rnga) = x(accum._2);
+				val (a, rnga) = x(accum._2)
 				loop(xs, (a :: accum._1, rnga))
 			}
 		}
