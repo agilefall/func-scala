@@ -50,4 +50,21 @@ class Chap7Suite extends FunSuite {
 		assert(5 === assertTime(2, p))
 	}
 
+	test("ex 5 sequence in parallel") {
+		val l = Par.sequence(List.fill(10)(slowIdentity(5)))
+		assert(List.fill(10)(5) === assertTime(2, l))
+	}
+
+	test("ex 6 filter in parallel") {
+		val startTime = System.currentTimeMillis()
+		val l = (1 to 15).toList
+		val p = (i: Int) => { Thread.sleep(1000); i % 2 == 0}
+		val fl = Par.parFilter(l)(p)(ec).get()
+		val endTime = System.currentTimeMillis()
+
+		assert(endTime - startTime < 5000, s"took ${endTime - startTime} ms" )
+		assert(fl == (2 to 15).by(2).toList, fl)
+	}
+
+
 }
